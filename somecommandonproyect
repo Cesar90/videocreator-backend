@@ -1,0 +1,3 @@
+npx prisma init --datasource-provider postgresql //Create file schema.prisma
+npx prisma migrate dev --name init => pass prisma model to database
+npx prisma generate => prisma cli

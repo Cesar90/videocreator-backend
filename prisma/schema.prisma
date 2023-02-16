@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Video {
+  id           Int         @id @default(autoincrement())
+  title        String
+  published    Boolean
+  url          String
+  description  String?
+  creationDate DateTime
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  user         User        @relation(fields: [userId], references: [id])
+  userId       Int
+  likevideos   LikeVideo[]
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  name       String
+  token      String
+  password   String
+  typeuser   TYPEUSER    @default(STUDENT)
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  videos     Video[]
+  followedBy Follows[]   @relation("following")
+  following  Follows[]   @relation("follower")
+  likevideos LikeVideo[]
+}
+
+model Follows {
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followerId  Int
+  following   User     @relation("following", fields: [followingId], references: [id])
+  followingId Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@id([followerId, followingId])
+}
+
+model LikeVideo {
+  id      Int      @id @default(autoincrement())
+  movie   Video    @relation(fields: [videoId], references: [id])
+  videoId Int      @map("video_id")
+  user    User     @relation(fields: [userId], references: [id])
+  userId  Int      @map("user_id")
+  addedAt DateTime @default(now()) @map("added_at")
+
+  @@map("Like_Video")
+}
+
+enum TYPEUSER {
+  STUDENT
+  TEACHER
+}
